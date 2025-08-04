@@ -1,0 +1,73 @@
+phitron sdp, drf module 19.
+PhiMart drf project github: https://github.com/phitronio/SDT-Django/tree/main/PhiMart
+
+project starts from module 19.3
+
+venv with python 3.11:
+"C:\Program Files\Python311\python.exe" -m venv phi_env311
+phi_env311\Scripts\activate  -------
+code .
+
+pip install django
+django-admin startproject phi_mart .
+python manage.py startapp users
+python manage.py startapp products
+python manage.py startapp orders
+python manage.py startapp api
+
+python manage.py runserver --------------
+
+DRF:
+https://www.django-rest-framework.org/#installation
+
+pip install djangorestframework markdown django-filter
+
+pip freeze > requirements.txt
+
+make User model(no username) and CustomUserManager
+python manage.py makemigrations
+python manage.py migrate
+
+python manage.py createsuperuser
+admin@example.com-1234 (no username used in this app)
+
+create all app models and run migrations
+
+fixtures:
+python manage.py loaddata fixtures/products_data.json (error: Product has no field named 'image')
+python manage.py loaddata fixtures/products_data_cleaned.json
+
+21.5: viewset & router
+21.6: pip install drf-nested-routers
+
+21.7: pip install django-filter
+
+23.1: 
+pip install -U djoser  # https://djoser.readthedocs.io/en/latest/getting_started.html
+pip install -U djangorestframework_simplejwt  # https://django-rest-framework-simplejwt.readthedocs.io/en/latest/getting_started.html#installation
+
+23.6 DjangoModelPermissions (drf)
+24.5 transaction.atomic()
+24.8 actions: https://www.django-rest-framework.org/api-guide/viewsets/#viewset-actions
+at 25.4, 3:50
+=======
+abc
+
+
+------------------
+github upload:
+git init
+git status
+git add .
+git status
+git commit -m "initial commit"
+git status
+---
+(create bramch in githib)
+git branch -M main
+git remote add origin https://github.com/anup-sdp/pritron_drf_phimart_ecom.git
+git push -u origin main
+---
+git commit -m "update DashboardPage.jsx"
+git push -u origin main
+---
