@@ -176,9 +176,16 @@ class ReviewViewSet(ModelViewSet):
     permission_classes = [IsReviewAuthorOrReadonly]
 
     def get_queryset(self):
+        # When drf-yasg is building your OpenAPI schema it instantiates every ViewSet without any URL kwargs,
+        # during schema generation, swagger_fake_view == True and there are no kwargs
+        if getattr(self, 'swagger_fake_view', False):
+            return Review.objects.none()
         return Review.objects.filter(product_id=self.kwargs['product_pk'])
 
     def get_serializer_context(self):
+        if getattr(self, 'swagger_fake_view', False):
+            # you can either return an empty context or delegate to the base impl
+            return super().get_serializer_context()
         #return {'product_id': self.kwargs['product_pk']}        
         context = super().get_serializer_context()  # Includes request(& user) by default
         context['product_id'] = self.kwargs['product_pk']
@@ -187,7 +194,7 @@ class ReviewViewSet(ModelViewSet):
         or,
         return {
             'product_id': self.kwargs['product_pk'],
-            'request': self.request,               # <-- add this
+            'request': self.request,  # <-- add this
         }
         """
     """

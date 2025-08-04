@@ -49,7 +49,7 @@ pip install -U djangorestframework_simplejwt  # https://django-rest-framework-si
 23.6 DjangoModelPermissions (drf)
 24.5 transaction.atomic()
 24.8 actions: https://www.django-rest-framework.org/api-guide/viewsets/#viewset-actions
-at 25.4, 3:50
+at 25.5, 3:50
 =======
 abc
 
@@ -68,6 +68,6 @@ git branch -M main
 git remote add origin https://github.com/anup-sdp/pritron_drf_phimart_ecom.git
 git push -u origin main
 ---
-git commit -m "update DashboardPage.jsx"
+git commit -m "swagger error fix"
 git push -u origin main
 ---
