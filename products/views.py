@@ -134,10 +134,7 @@ class ProductViewSet(ModelViewSet):
         operation_summary="Create a product by admin",
         operation_description="This allow an admin to create a product",
         request_body=ProductSerializer,
-        responses={
-            201: ProductSerializer,
-            400: "Bad Request"
-        }
+        responses={201: ProductSerializer, 400: "Bad Request"}
     )
     def create(self, request, *args, **kwargs):
         #Only authenticated admin can create product
@@ -181,10 +178,11 @@ class ReviewViewSet(ModelViewSet):
         if getattr(self, 'swagger_fake_view', False):
             return Review.objects.none()
         return Review.objects.filter(product_id=self.kwargs['product_pk'])
+        # or, return Review.objects.filter(product_id=self.kwargs.get('product_pk')) # has problem
 
     def get_serializer_context(self):
-        if getattr(self, 'swagger_fake_view', False):
-            # you can either return an empty context or delegate to the base impl
+        if getattr(self, 'swagger_fake_view', False):            
+            # you can either return an empty context or delegate to the base implementation using super().get_serializer_context()
             return super().get_serializer_context()
         #return {'product_id': self.kwargs['product_pk']}        
         context = super().get_serializer_context()  # Includes request(& user) by default

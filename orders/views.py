@@ -23,6 +23,8 @@ class CartViewSet(CreateModelMixin, RetrieveModelMixin, DestroyModelMixin, Gener
             return Cart.objects.none()
         return Cart.objects.prefetch_related('items__product').filter(user=self.request.user)  # prefetch_related used
 
+# getattr(object, attribute_name, default_value)
+# default_value: (optional) value to return if the attribute doesn't exist — avoids AttributeError
 
 class CartItemViewSet(ModelViewSet):
     http_method_names = ['get', 'post', 'patch', 'delete']

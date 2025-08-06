@@ -9,7 +9,7 @@ class CategorySerializer(serializers.ModelSerializer):
         model = Category
         fields = ['id', 'name', 'description', 'product_count']
 
-    product_count = serializers.IntegerField(read_only=True, help_text="Return the number product in this category")
+    product_count = serializers.IntegerField(read_only=True, help_text="Return the number product in this category") # help_text for swagger show
 
 class ProductImageSerializer(serializers.ModelSerializer):
     class Meta:
