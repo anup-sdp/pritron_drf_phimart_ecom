@@ -21,7 +21,7 @@ from decouple import config
 BASE_DIR = Path(__file__).resolve().parent.parent
 
 STATIC_ROOT = BASE_DIR / "staticfiles" # ---
-# STATIC_FILES_DIR = BASE_DIR / 'static'
+STATIC_FILES_DIR = BASE_DIR / 'static'
 STATICFILES_STORAGE = "whitenoise.storage.CompressedStaticFilesStorage"
 """
 STORAGES = {
