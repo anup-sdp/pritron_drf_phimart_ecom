@@ -139,7 +139,7 @@ class ProductViewSet(ModelViewSet):
     def create(self, request, *args, **kwargs):
         #Only authenticated admin can create product
         return super().create(request, *args, **kwargs)
-    queryset = Product.objects.all() 
+    #queryset = Product.objects.all() 
     # following is not needed, as ProductFilter handles the filter.
     # def get_queryset(self):        
     #     category_id = self.request.query_params.get('category_id')
@@ -148,6 +148,8 @@ class ProductViewSet(ModelViewSet):
     #     else:
     #         queryset = Product.objects.all()   
     #     return queryset
+    def get_queryset(self):
+        return Product.objects.prefetch_related('images').all()
 
 
 class ProductImageViewSet(ModelViewSet):
