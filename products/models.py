@@ -2,7 +2,7 @@ from django.db import models
 from django.conf import settings
 from django.core.validators import MinValueValidator, MaxValueValidator
 from products.validators import validate_file_size
-
+from cloudinary.models import CloudinaryField  # for image save in cloud
 
 class Category(models.Model):
     name = models.CharField(max_length=100)
@@ -30,7 +30,8 @@ class Product(models.Model):
 
 class ProductImage(models.Model):
     product = models.ForeignKey(Product, on_delete=models.CASCADE, related_name='images')
-    image = models.ImageField(upload_to="products/images/", validators=[validate_file_size]) # blank =true, null = True not used, as m2m ?
+    #image = models.ImageField(upload_to="products/images/", validators=[validate_file_size]) # blank =true, null = True not used, as m2m ?
+    image = CloudinaryField('image', folder='phimart_ecom', blank=True, null=True) # default='phimart_ecom/default_jb8jxq.png' , now validator written in ProductImageSerializer, 1 MB
     # file = models.FileField(upload_to="product/files", validators=FileExtensionValidator(['pdf']))
 
 

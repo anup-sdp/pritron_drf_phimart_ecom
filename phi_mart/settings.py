@@ -20,6 +20,17 @@ from decouple import config
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
+STATIC_ROOT = BASE_DIR / "staticfiles" # ---
+# STATIC_FILES_DIR = BASE_DIR / 'static'
+STATICFILES_STORAGE = "whitenoise.storage.CompressedStaticFilesStorage"
+"""
+STORAGES = {
+    # ...
+    "staticfiles": {
+        "BACKEND": "whitenoise.storage.CompressedManifestStaticFilesStorage",
+    },
+}
+"""
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/5.2/howto/deployment/checklist/
@@ -28,14 +39,15 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = config('SECRET_KEY')  # using decouple package
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = False
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = [".vercel.app",'localhost', '127.0.0.1'] # --- must add when DEBUG = False
 
 
 # Application definition
 
 INSTALLED_APPS = [
+	"whitenoise.runserver_nostatic", #
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -50,6 +62,8 @@ INSTALLED_APPS = [
 	"debug_toolbar",  # https://django-debug-toolbar.readthedocs.io/en/latest/installation.html
 	'djoser',
 	'django_filters',
+	'cloudinary',
+	'cloudinary_storage',
 	#
 	'api',
 	'orders',
@@ -60,6 +74,7 @@ INSTALLED_APPS = [
 MIDDLEWARE = [
 	"debug_toolbar.middleware.DebugToolbarMiddleware", # ---
     'django.middleware.security.SecurityMiddleware',
+	"whitenoise.middleware.WhiteNoiseMiddleware", # ---
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
@@ -85,31 +100,33 @@ TEMPLATES = [
     },
 ]
 
-WSGI_APPLICATION = 'phi_mart.wsgi.application'
+WSGI_APPLICATION = 'phi_mart.wsgi.app' # changed from application to app for vercel
 
 
 # Database
 # https://docs.djangoproject.com/en/5.2/ref/settings/#databases
 
+"""
+# default initial database
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.sqlite3',
         'NAME': BASE_DIR / 'db.sqlite3',
     }
 }
-
 """
+
+# supabase postgresql database:
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql',
-        'NAME': 'postgres',
-        'USER': 'masteruser',
-        'PASSWORD': '12345678',
-        'HOST': 'w3-django-project.cdxmgq9zqqlr.us-east-1.rds.amazonaws.com',
-        'PORT': '5432'
+        'NAME': config('dbname'),
+        'USER': config('user'), # name.project_id 
+        'PASSWORD': config('password'), # supabase project password
+        'HOST': config('host'),
+        'PORT': config('port')
     }
 }
-"""
 
 
 # Password validation
@@ -178,11 +195,11 @@ REST_FRAMEWORK = {
 
 
 SIMPLE_JWT = {
-    'AUTH_HEADER_TYPES': ('JWT',),	
+    'AUTH_HEADER_TYPES': ('JWT',),	# --------------------------------------------
 	# ^ When making authenticated requests, Authorization: JWT <token> , instead of Authorization: Bearer <token> , 'AUTH_HEADER_TYPES': ('JWT', 'Bearer')	Accepts both formats
     "ACCESS_TOKEN_LIFETIME": timedelta(days=1),
     # "ACCESS_TOKEN_LIFETIME": timedelta(minutes=5),
-    # "REFRESH_TOKEN_LIFETIME": timedelta(days=1),
+    # "REFRESH_TOKEN_LIFETIME": timedelta(days=7),
 }
 
 DJOSER = {
@@ -202,6 +219,37 @@ SWAGGER_SETTINGS = {  # module 25.4
       }
    }
 }
+
+
+import cloudinary
+import cloudinary.uploader
+from cloudinary.utils import cloudinary_url
+
+# cloudinary Configuration       
+cloudinary.config( 
+    cloud_name = "didgrik0m", 
+    api_key = "767657668879994", 
+    api_secret = config('CLOUDINARY_API_SECRET'), # Click 'View API Keys' above to copy your API secret
+    secure=True
+)
+DEFAULT_FILE_STORAGE = 'cloudinary_storage.storage.MediaCloudinaryStorage'
+
+"""
+# as done in event_mgmt project:
+CLOUDINARY_STORAGE = {
+    'CLOUD_NAME': config('CLOUDINARY_CLOUD_NAME'),
+    'API_KEY':    config('CLOUDINARY_API_KEY'),
+    'API_SECRET': config('CLOUDINARY_API_SECRET'),
+    # 
+    'USE_FILENAME': True,
+    'UNIQUE_FILENAME': False,
+    'OVERWRITE': True,
+}
+DEFAULT_FILE_STORAGE = 'cloudinary_storage.storage.MediaCloudinaryStorage'
+
+# CLOUDINARY_URL=cloudinary://<API_KEY>:<API_SECRET>@<CLOUD_NAME> # use this in .env replacing by values
+"""
+
 
 """
 djoser,

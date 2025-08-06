@@ -53,12 +53,15 @@ pip install -U djangorestframework_simplejwt  # https://django-rest-framework-si
 26.3 supabase:
 pip install python-decouple
 pip install psycopg2-binary
+supabase project: drf-phimart,
 
+pip install cloudinary
+pip install django-cloudinary-storage
 
+pip install whitenoise
+python manage.py collectstatic
 
-at 26.4, 2:30
-
-
+at 26.7, 0:00
 =======
 abc
 
@@ -78,6 +81,6 @@ git remote add origin https://github.com/anup-sdp/pritron_drf_phimart_ecom.git
 git push -u origin main
 ---
 git add .
-git commit -m "pre supabase"
+git commit -m "ready for vercel"
 git push -u origin main
 ---

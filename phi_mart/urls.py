@@ -44,12 +44,12 @@ urlpatterns = [
 	path("", api_root_view),
 	path('api-auth/', include('rest_framework.urls')), # For login/logout in DRF UI
 	path('api/', include('api.urls')), # , name='api-root'  # recommended format use: api/v1/ -----
-	path('api/token/', TokenObtainPairView.as_view(), name='token_obtain_pair'),
+	path('api/token/', TokenObtainPairView.as_view(), name='token_obtain_pair'),  # post request to get access/refresh tokens
     path('api/token/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
 	path('swagger/', schema_view.with_ui('swagger',cache_timeout=0), name='schema-swagger-ui'),
     path('redoc/', schema_view.with_ui('redoc',cache_timeout=0), name='schema-redoc'),
 ] + debug_toolbar_urls()
 
-urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
+# urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT) # commented because using cloudinary
 
 # for apis: 1) models, 2) serializers, 3) viewset, 4) router

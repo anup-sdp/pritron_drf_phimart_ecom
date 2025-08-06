@@ -2,7 +2,7 @@ from django.core.exceptions import ValidationError
 
 
 def validate_file_size(file):    
-    max_size = 5 # This validator validate if file size is less than 5 MB
+    max_size = 1 # This validator validate if file size is less than 1 MB
     max_size_in_bytes = max_size * 1024 * 1024
 
     if file.size > max_size_in_bytes:

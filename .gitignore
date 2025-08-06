@@ -1,4 +1,4 @@
 phi_env311/
 db.sqlite3
-__pycache__
+__pycache__/
 .env

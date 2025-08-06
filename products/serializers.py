@@ -12,10 +12,19 @@ class CategorySerializer(serializers.ModelSerializer):
     product_count = serializers.IntegerField(read_only=True, help_text="Return the number product in this category") # help_text for swagger show
 
 class ProductImageSerializer(serializers.ModelSerializer):
+    image= serializers.ImageField()
     class Meta:
         model = ProductImage
         fields = ['id', 'image']
-        
+    def validate_image(self, value):
+        # Limit file size to 1MB
+        if value.size > 1 * 1024 * 1024:
+            raise serializers.ValidationError("Image size cannot exceed 1MB.")
+        # Check file type
+        valid_extensions = ['.jpg', '.jpeg', '.png', '.gif']
+        if not any(value.name.lower().endswith(ext) for ext in valid_extensions):
+            raise serializers.ValidationError("Unsupported file type.")
+        return value    
 
 """
 class ProductSerializer(serializers.Serializer):  # module 20.4
