@@ -30,6 +30,7 @@ urlpatterns = [
     path('auth/', include('djoser.urls.jwt')),
 ]
 # djoser.urls is changing initial page  Api Root from (http://127.0.0.1:8000/api/) to (http://127.0.0.1:8000/api/auth/) , sol: use  api/v1/  ?
+# GET/POST: http://127.0.0.1:8000/api/auth/users
 # http://127.0.0.1:8000/api/auth/users/me/
 
 # pip install drf-nested-routers

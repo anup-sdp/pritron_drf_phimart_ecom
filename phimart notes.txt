@@ -61,7 +61,8 @@ pip install django-cloudinary-storage
 pip install whitenoise
 python manage.py collectstatic
 
-at 26.7, 9:50
+26.9: using djoser, send user activation email and reset password.
+# see details about this: https://www.youtube.com/watch?v=_IKk553cH2s&t=216s
 =======
 abc
 
@@ -81,6 +82,6 @@ git remote add origin https://github.com/anup-sdp/pritron_drf_phimart_ecom.git
 git push -u origin main
 ---
 git add .
-git commit -m "vercel 1.2"
+git commit -m "vercel 1.3"
 git push -u origin main
 ---

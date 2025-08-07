@@ -203,6 +203,9 @@ SIMPLE_JWT = {
 }
 
 DJOSER = {
+	'PASSWORD_RESET_CONFIRM_URL': 'password/reset/confirm/{uid}/{token}',
+    'ACTIVATION_URL': 'activate/{uid}/{token}',
+    'SEND_ACTIVATION_EMAIL': True, # -----
     'SERIALIZERS': {
         'user_create': 'users.serializers.UserCreateSerializer',  # http://127.0.0.1:8000/api/auth/users/
         'current_user': 'users.serializers.UserSerializer', # http://127.0.0.1:8000/api/auth/users/me
@@ -220,6 +223,19 @@ SWAGGER_SETTINGS = {  # module 25.4
    }
 }
 
+# for sending email
+EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+#EMAIL_BACKEND = 'users.email_backends.CustomEmailBackend'
+EMAIL_HOST = 'smtp.gmail.com'
+EMAIL_USE_TLS = True
+EMAIL_PORT = 587
+EMAIL_HOST_USER = config('EMAIL_HOST_USER')  # sender's email-id
+EMAIL_HOST_PASSWORD = config('EMAIL_HOST_PASSWORD') # password associated with above email-id/google app password (not the regular password)
+
+DEFAULT_FROM_EMAIL = "phimart_app"
+
+# for user account email activation
+FRONTEND_URL = config('FRONTEND_URL', default='http://127.0.0.1:8000')  # development
 
 import cloudinary
 import cloudinary.uploader
