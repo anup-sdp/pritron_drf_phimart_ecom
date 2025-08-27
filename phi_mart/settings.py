@@ -1,5 +1,6 @@
-# https://github.com/phitronio/SDT-Django/tree/main/PhiMart
+# follwed, https://github.com/phitronio/SDT-Django/tree/main/PhiMart
 # Classy Django REST Framework: https://www.cdrf.co/
+# my repo: https://github.com/anup-sdp/pritron_drf_phimart_ecom
 
 """
 Django settings for phi_mart project.
@@ -39,7 +40,7 @@ STORAGES = {
 SECRET_KEY = config('SECRET_KEY')  # using decouple package
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = False
+DEBUG = True
 
 ALLOWED_HOSTS = [".vercel.app",'localhost', '127.0.0.1'] # --- must add when DEBUG = False
 
@@ -64,6 +65,7 @@ INSTALLED_APPS = [
 	'django_filters',
 	'cloudinary',
 	'cloudinary_storage',
+	"django.contrib.sites", # --------
 	#
 	'api',
 	'orders',
@@ -116,7 +118,7 @@ DATABASES = {
 }
 """
 
-# supabase postgresql database:
+# supabase postgresql database (at anupbarua30@gmail.com):
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql',
@@ -212,6 +214,13 @@ DJOSER = {
     },
 }
 
+SITE_ID = 1
+
+DJOSER.update({
+    "DOMAIN": config("API_DOMAIN", default="api.phimart.app"),
+    "SITE_NAME": "PhiMart API",
+})
+
 SWAGGER_SETTINGS = {  # module 25.4
    'SECURITY_DEFINITIONS': {      
       'Bearer': {
@@ -225,6 +234,7 @@ SWAGGER_SETTINGS = {  # module 25.4
 
 # for sending email
 EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+#EMAIL_BACKEND = "django.core.mail.backends.console.EmailBackend" # dev testing only
 #EMAIL_BACKEND = 'users.email_backends.CustomEmailBackend'
 EMAIL_HOST = 'smtp.gmail.com'
 EMAIL_USE_TLS = True

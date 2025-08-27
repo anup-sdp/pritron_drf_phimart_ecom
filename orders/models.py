@@ -2,11 +2,11 @@ from django.db import models
 from django.core.validators import MinValueValidator
 from users.models import User
 from products.models import Product
-from uuid import uuid4  # Universally Unique Identifiers
+from uuid import uuid4  # Universally Unique Identifiers, uuid4 is a common choice as it generates random UUIDs
 
 
 class Cart(models.Model):
-    id = models.UUIDField(primary_key=True, default=uuid4, editable=False) # uuid4 is a common choice as it generates random UUIDs
+    id = models.UUIDField(primary_key=True, default=uuid4, editable=False) # ---
     user = models.OneToOneField(User, on_delete=models.CASCADE, related_name="cart")
     created_at = models.DateTimeField(auto_now_add=True)
 

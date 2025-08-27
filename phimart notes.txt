@@ -82,6 +82,6 @@ git remote add origin https://github.com/anup-sdp/pritron_drf_phimart_ecom.git
 git push -u origin main
 ---
 git add .
-git commit -m "vercel 1.4"
+git commit -m "vercel 1.5"
 git push -u origin main
 ---

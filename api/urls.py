@@ -26,9 +26,14 @@ urlpatterns = [
     path('', include(cart_router.urls)),
 	path('products2/', include('products.product_urls')), 
 	path('categories2/', include('products.category_urls')),
-    path('auth/', include('djoser.urls')),
-    path('auth/', include('djoser.urls.jwt')),
+    path('auth/', include('djoser.urls')), # Djoser core (registration, activation, password reset, etc.)
+    path('auth/', include('djoser.urls.jwt')), # Djoser + JWT
 ]
+"""
+POST /api/auth/users/ → create user (inactive) + send activation email
+GET /api/auth/users/activation/?uid=<uid>&token=<token> → activate
+"""
+
 # djoser.urls is changing initial page  Api Root from (http://127.0.0.1:8000/api/) to (http://127.0.0.1:8000/api/auth/) , sol: use  api/v1/  ?
 # GET/POST: http://127.0.0.1:8000/api/auth/users
 # http://127.0.0.1:8000/api/auth/users/me/
