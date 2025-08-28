@@ -86,6 +86,6 @@ git remote add origin https://github.com/anup-sdp/pritron_drf_phimart_ecom.git
 git push -u origin main
 ---
 git add .
-git commit -m "v1.6"
+git commit -m "v1.7"
 git push -u origin main
 ---
