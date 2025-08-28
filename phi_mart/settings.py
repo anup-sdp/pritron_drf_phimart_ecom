@@ -66,6 +66,7 @@ INSTALLED_APPS = [
 	'cloudinary',
 	'cloudinary_storage',
 	"django.contrib.sites", # --------
+	'corsheaders', # for react frontend 
 	#
 	'api',
 	'orders',
@@ -74,6 +75,7 @@ INSTALLED_APPS = [
 ]
 
 MIDDLEWARE = [
+	'corsheaders.middleware.CorsMiddleware',  # --- at top
 	"debug_toolbar.middleware.DebugToolbarMiddleware", # ---
     'django.middleware.security.SecurityMiddleware',
 	"whitenoise.middleware.WhiteNoiseMiddleware", # ---
@@ -189,7 +191,12 @@ REST_FRAMEWORK = {
     ),
 	'DEFAULT_PERMISSION_CLASSES': [
         #'rest_framework.permissions.IsAuthenticated',
-		'rest_framework.permissions.AllowAny',
+		# 'rest_framework.permissions.AllowAny', # default
+		'rest_framework.permissions.IsAuthenticatedOrReadOnly',
+		# 'rest_framework.permissions.IsAdminUser',
+		# 'rest_framework.permissions.DjangoModelPermissions',
+		# 'rest_framework.permissions.DjangoModelPermissionsOrAnonReadOnly',
+		# 'myapp.permissions.IsEditor', # custom permision
     ]
 
 }
@@ -245,7 +252,29 @@ EMAIL_HOST_PASSWORD = config('EMAIL_HOST_PASSWORD') # password associated with a
 DEFAULT_FROM_EMAIL = "phimart_app"
 
 # for user account email activation
-FRONTEND_URL = config('FRONTEND_URL', default='http://127.0.0.1:8000')  # development
+FRONTEND_URL = config('FRONTEND_URL', default='http://127.0.0.1:8000')  # development ----------------------
+
+CORS_ALLOWED_ORIGINS = [
+    "http://localhost:5173",  # Your React dev server origin
+    "http://127.0.0.1:8000",  # Your Django server (optional)
+]
+
+# CORS_ALLOW_ALL_ORIGINS = True  # ⚠️ Use only in development
+CORS_ALLOW_CREDENTIALS = True 
+# ^ If your frontend needs to send credentials like cookies or authentication headers
+# ^ dont allow CORS_ALLOW_ALL_ORIGINS if use this
+
+# If using custom headers:
+CORS_ALLOW_HEADERS = [
+    "accept",
+    "authorization",
+    "content-type",
+    "user-agent",
+    "x-csrftoken",
+    "x-requested-with",
+    # Add any custom headers your frontend sends
+]
+
 
 import cloudinary
 import cloudinary.uploader

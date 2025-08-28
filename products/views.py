@@ -24,7 +24,7 @@ from rest_framework.permissions import DjangoModelPermissions, DjangoModelPermis
 
 
 @api_view(['GET','POST'])
-def view_products(request):  # fbv, module 20.1 # http://127.0.0.1:8000/api/products2/product-list/
+def view_products(request):  # fbv, module 20.1 # http://127.0.0.1:8000/api/products2/product-list/  # http://127.0.0.1:8000/api/products2/product-list/ with no auth allowed
     #return HttpResponse("Okay")
     #return Response({'message':"Hello from Anup"})
     if request.method == 'GET':
