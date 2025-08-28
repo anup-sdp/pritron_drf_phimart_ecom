@@ -254,9 +254,18 @@ DEFAULT_FROM_EMAIL = "phimart_app"
 # for user account email activation
 FRONTEND_URL = config('FRONTEND_URL', default='http://127.0.0.1:8000')  # development ----------------------
 
+
 CORS_ALLOWED_ORIGINS = [
     "http://localhost:5173",  # Your React dev server origin
-    "http://127.0.0.1:8000",  # Your Django server (optional)
+    "http://127.0.0.1:8000",  # Your Django server 
+    "https://drf-phimart.vercel.app",  # Add your Vercel deployment
+    "https://your-react-app.vercel.app",  # Add your React app if deployed
+]
+
+CSRF_TRUSTED_ORIGINS = [
+    "http://localhost:5173",
+    "https://drf-phimart.vercel.app",
+    # Add other production domains
 ]
 
 # CORS_ALLOW_ALL_ORIGINS = True  # ⚠️ Use only in development
