@@ -21,6 +21,9 @@ from decouple import config
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
+# SECURITY WARNING: don't run with debug turned on in production!
+DEBUG = config('DEBUG', default=False, cast=bool)
+
 STATIC_ROOT = BASE_DIR / "staticfiles" # ---
 STATIC_FILES_DIR = BASE_DIR / 'static'
 STATICFILES_STORAGE = "whitenoise.storage.CompressedStaticFilesStorage"
@@ -39,10 +42,14 @@ STORAGES = {
 # SECURITY WARNING: keep the secret key used in production secret!
 SECRET_KEY = config('SECRET_KEY')  # using decouple package
 
-# SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
 
-ALLOWED_HOSTS = [".vercel.app",'localhost', '127.0.0.1'] # --- must add when DEBUG = False
+# ALLOWED_HOSTS, must add when DEBUG = False
+ALLOWED_HOSTS = [
+    ".vercel.app",
+    'localhost', 
+    '127.0.0.1',
+    'drf-phimart.vercel.app',  # Add your specific Vercel URL
+]
 
 
 # Application definition
@@ -255,11 +262,14 @@ DEFAULT_FROM_EMAIL = "phimart_app"
 FRONTEND_URL = config('FRONTEND_URL', default='http://127.0.0.1:8000')  # development ----------------------
 
 
+# CORS Configuration - Update this section
 CORS_ALLOWED_ORIGINS = [
-    "http://localhost:5173",  # Your React dev server origin
-    "http://127.0.0.1:8000",  # Your Django server 
-    "https://drf-phimart.vercel.app",  # Add your Vercel deployment
-    "https://your-react-app.vercel.app",  # Add your React app if deployed
+    "http://localhost:5173",  # React dev server
+    "https://localhost:5173",  # React dev server with HTTPS
+    "http://127.0.0.1:8000",  # Django local server
+    "https://drf-phimart.vercel.app",  # Your Vercel backend
+    # Add your React frontend URL when deployed
+    # "https://your-react-app.vercel.app",  
 ]
 
 CSRF_TRUSTED_ORIGINS = [
@@ -276,14 +286,36 @@ CORS_ALLOW_CREDENTIALS = True
 # If using custom headers:
 CORS_ALLOW_HEADERS = [
     "accept",
+    "accept-encoding",
     "authorization",
     "content-type",
+    "dnt",
+    "origin",
     "user-agent",
     "x-csrftoken",
     "x-requested-with",
-    # Add any custom headers your frontend sends
 ]
 
+CORS_ALLOW_METHODS = [
+    'DELETE',
+    'GET',
+    'OPTIONS',
+    'PATCH',
+    'POST',
+    'PUT',
+]
+
+# Add these for better Vercel compatibility
+CORS_PREFLIGHT_MAX_AGE = 86400  # 24 hours
+
+# Update DJOSER configuration for production
+DJOSER.update({
+    "DOMAIN": config("API_DOMAIN", default="drf-phimart.vercel.app"),  # Update this
+    "SITE_NAME": "PhiMart API",
+})
+
+# Update FRONTEND_URL for email links
+FRONTEND_URL = config('FRONTEND_URL', default='https://your-react-frontend.vercel.app')  # Update when you deploy frontend
 
 import cloudinary
 import cloudinary.uploader
