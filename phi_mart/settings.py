@@ -191,8 +191,8 @@ REST_FRAMEWORK = {
     ),
 	'DEFAULT_PERMISSION_CLASSES': [
         #'rest_framework.permissions.IsAuthenticated',
-		# 'rest_framework.permissions.AllowAny', # default
-		'rest_framework.permissions.IsAuthenticatedOrReadOnly',
+		'rest_framework.permissions.AllowAny', # default
+		#'rest_framework.permissions.IsAuthenticatedOrReadOnly',
 		# 'rest_framework.permissions.IsAdminUser',
 		# 'rest_framework.permissions.DjangoModelPermissions',
 		# 'rest_framework.permissions.DjangoModelPermissionsOrAnonReadOnly',
