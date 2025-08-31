@@ -204,8 +204,9 @@ REST_FRAMEWORK = {
 		# 'rest_framework.permissions.DjangoModelPermissions',
 		# 'rest_framework.permissions.DjangoModelPermissionsOrAnonReadOnly',
 		# 'myapp.permissions.IsEditor', # custom permision
-    ]
-
+    ],
+	'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.PageNumberPagination',
+    'PAGE_SIZE': 10,  # eg. Max 10 products per page
 }
 
 
@@ -236,14 +237,14 @@ DJOSER.update({
 })
 
 SWAGGER_SETTINGS = {  # module 25.4
-   'SECURITY_DEFINITIONS': {      
+   'SECURITY_DEFINITIONS': {
       'Bearer': {
             'type': 'apiKey',
             'name': 'Authorization',
             'in': 'header',
 			'description': 'Enter your JWT token in the format: `JWT <your_token>`'
       }
-   }
+   },   
 }
 
 # for sending email
@@ -278,7 +279,7 @@ CSRF_TRUSTED_ORIGINS = [
     # Add other production domains
 ]
 
-# CORS_ALLOW_ALL_ORIGINS = True  # ⚠️ Use only in development
+# CORS_ALLOW_ALL_ORIGINS = True  # Use only in development
 CORS_ALLOW_CREDENTIALS = True 
 # ^ If your frontend needs to send credentials like cookies or authentication headers
 # ^ dont allow CORS_ALLOW_ALL_ORIGINS if use this
@@ -330,21 +331,7 @@ cloudinary.config(
 )
 DEFAULT_FILE_STORAGE = 'cloudinary_storage.storage.MediaCloudinaryStorage'
 
-"""
-# as done in event_mgmt project:
-CLOUDINARY_STORAGE = {
-    'CLOUD_NAME': config('CLOUDINARY_CLOUD_NAME'),
-    'API_KEY':    config('CLOUDINARY_API_KEY'),
-    'API_SECRET': config('CLOUDINARY_API_SECRET'),
-    # 
-    'USE_FILENAME': True,
-    'UNIQUE_FILENAME': False,
-    'OVERWRITE': True,
-}
-DEFAULT_FILE_STORAGE = 'cloudinary_storage.storage.MediaCloudinaryStorage'
-
 # CLOUDINARY_URL=cloudinary://<API_KEY>:<API_SECRET>@<CLOUD_NAME> # use this in .env replacing by values
-"""
 
 
 """

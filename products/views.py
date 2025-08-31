@@ -21,6 +21,7 @@ from rest_framework.views import APIView
 from rest_framework.generics import ListCreateAPIView
 from rest_framework.permissions import IsAuthenticated, AllowAny, IsAdminUser, IsAuthenticatedOrReadOnly
 from rest_framework.permissions import DjangoModelPermissions, DjangoModelPermissionsOrAnonReadOnly  # module 23.6
+from drf_yasg import openapi
 
 
 @api_view(['GET','POST'])
@@ -120,11 +121,31 @@ class ProductViewSet(ModelViewSet):
     pagination_class = DefaultPagination
     search_fields = ['name', 'description'] # 
     ordering_fields = ['price', 'updated_at']
-    permission_classes = [IsAdminOrReadOnly]  # custom permission
+    permission_classes = [IsAdminOrReadOnly]  # or custom permission
+    # permission_classes = [IsAuthenticatedOrReadOnly]  
     # permission_classes = [DjangoModelPermissionsOrAnonReadOnly]  # for edit, can give group permission(can crud a specific model) to a user.
 
     @swagger_auto_schema(
-        operation_summary='Retrive a list of products'
+    	operation_summary='Retrieve a list of products',        
+    	# although price range was working from requests like: http://127.0.0.1:8000/api/products/?price__gt=200&price__lt=300 
+    	# drf-yasg was not automatically detecting filters defined in a FilterSet
+    	# price__gt and price__lt was not showing in swagger doc, so manual_parameters added and its showing now in swagger.	
+    	manual_parameters=[
+            openapi.Parameter(
+            'ordering', 
+            openapi.IN_QUERY,
+            description="Order by specified field:\n"
+                        "- 'price' = lowest to highest price\n"
+                        "- '-price' = highest to lowest price\n"
+                        "- 'updated_at' = oldest first\n"
+                        "- '-updated_at' = newest first",
+            type=openapi.TYPE_STRING,
+            enum=['price', '-price', 'updated_at', '-updated_at']
+        	),
+    	    openapi.Parameter('price__gt', openapi.IN_QUERY, description="Filter products with price greater than this value", type=openapi.TYPE_NUMBER),
+    	    openapi.Parameter('price__lt', openapi.IN_QUERY, description="Filter products with price less than this value", type=openapi.TYPE_NUMBER),
+    	    openapi.Parameter('category_id', openapi.IN_QUERY, description="Filter by category ID", type=openapi.TYPE_INTEGER),
+    	]
     )
     def list(self, request, *args, **kwargs):
         """Retrive all the products"""
@@ -151,6 +172,8 @@ class ProductViewSet(ModelViewSet):
     def get_queryset(self):
         return Product.objects.prefetch_related('images').all()
 
+
+# http://127.0.0.1:8000/api/products/?price__gt=200&price__lt=300  --> worked
 
 class ProductImageViewSet(ModelViewSet):
     serializer_class = ProductImageSerializer
