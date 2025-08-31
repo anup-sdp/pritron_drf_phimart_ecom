@@ -2,6 +2,8 @@
 # Classy Django REST Framework: https://www.cdrf.co/
 # my repo: https://github.com/anup-sdp/pritron_drf_phimart_ecom
 
+# live: https://drf-phimart.vercel.app/api/   -   https://drf-phimart.vercel.app/swagger/
+
 """
 Django settings for phi_mart project.
 
