@@ -221,7 +221,11 @@ SIMPLE_JWT = {
     # "REFRESH_TOKEN_LIFETIME": timedelta(days=7),
 }
 
+# http://localhost:5173/
 DJOSER = {
+	'EMAIL_FRONTEND_PROTOCOL': config('EMAIL_FRONTEND_PROTOCOL', default="http"), # --- update after deployment
+	'EMAIL_FRONTEND_DOMAIN': config('EMAIL_FRONTEND_DOMAIN',  default="localhost:5173"), # ---
+	'EMAIL_FRONTEND_SITE_NAME':'PhiMart', # ---
 	'PASSWORD_RESET_CONFIRM_URL': 'password/reset/confirm/{uid}/{token}',
     'ACTIVATION_URL': 'activate/{uid}/{token}',
     'SEND_ACTIVATION_EMAIL': True, # -----
@@ -233,10 +237,11 @@ DJOSER = {
 
 SITE_ID = 1
 
-DJOSER.update({
-    "DOMAIN": config("API_DOMAIN", default="api.phimart.app"),
-    "SITE_NAME": "PhiMart API",
-})
+# Update DJOSER configuration for production
+# DJOSER.update({
+#     "DOMAIN": config("API_DOMAIN", default="drf-phimart.vercel.app"),  # Update this, give frontend domain
+#     "SITE_NAME": "PhiMart API",
+# })
 
 SWAGGER_SETTINGS = {  # module 25.4
    'SECURITY_DEFINITIONS': {
@@ -262,8 +267,10 @@ EMAIL_HOST_PASSWORD = config('EMAIL_HOST_PASSWORD') # password associated with a
 DEFAULT_FROM_EMAIL = "phimart_app"
 
 # for user account email activation
-FRONTEND_URL = config('FRONTEND_URL', default='http://127.0.0.1:8000')  # development ----------------------
-
+# FRONTEND_URL = config('FRONTEND_URL', default='http://127.0.0.1:8000')  # development ----------------------
+FRONTEND_URL = config('FRONTEND_URL', default='http://localhost:5173')
+# Update FRONTEND_URL for email links
+# FRONTEND_URL = config('FRONTEND_URL', default='https://your-react-frontend.vercel.app')  # Update when you deploy frontend
 
 # CORS Configuration - Update this section
 CORS_ALLOWED_ORIGINS = [
@@ -311,14 +318,6 @@ CORS_ALLOW_METHODS = [
 # Add these for better Vercel compatibility
 CORS_PREFLIGHT_MAX_AGE = 86400  # 24 hours
 
-# Update DJOSER configuration for production
-DJOSER.update({
-    "DOMAIN": config("API_DOMAIN", default="drf-phimart.vercel.app"),  # Update this
-    "SITE_NAME": "PhiMart API",
-})
-
-# Update FRONTEND_URL for email links
-FRONTEND_URL = config('FRONTEND_URL', default='https://your-react-frontend.vercel.app')  # Update when you deploy frontend
 
 import cloudinary
 import cloudinary.uploader
