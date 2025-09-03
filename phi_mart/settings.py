@@ -216,9 +216,8 @@ REST_FRAMEWORK = {
 SIMPLE_JWT = {
     'AUTH_HEADER_TYPES': ('JWT',),	# --------------------------------------------
 	# ^ When making authenticated requests, Authorization: JWT <token> , instead of Authorization: Bearer <token> , 'AUTH_HEADER_TYPES': ('JWT', 'Bearer')	Accepts both formats
-    "ACCESS_TOKEN_LIFETIME": timedelta(days=1),
-    # "ACCESS_TOKEN_LIFETIME": timedelta(minutes=5),
-    # "REFRESH_TOKEN_LIFETIME": timedelta(days=7),
+    "ACCESS_TOKEN_LIFETIME": timedelta(minutes=60),    
+    "REFRESH_TOKEN_LIFETIME": timedelta(days=7),
 }
 
 # http://localhost:5173/
