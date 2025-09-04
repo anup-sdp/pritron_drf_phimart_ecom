@@ -4,6 +4,7 @@ from products.views import ProductViewSet, CategoryViewSet, ReviewViewSet, Produ
 from orders.views import CartViewSet, CartItemViewSet, OrderViewset
 #from rest_framework.routers import DefaultRouter  # now using nested
 from rest_framework_nested import routers  # simplifies the creation of nested API routes and views. 
+from api.auth_views import CustomTokenObtainPairView
 
 router = routers.DefaultRouter()
 router.register('products', ProductViewSet, basename='products')
@@ -27,6 +28,8 @@ urlpatterns = [
 	path('products2/', include('products.product_urls')), 
 	path('categories2/', include('products.category_urls')),
     path('auth/', include('djoser.urls')), # Djoser core (registration, activation, password reset, etc.)
+	# Override the JWT creation endpoint with our custom view
+    path('auth/jwt/create/', CustomTokenObtainPairView.as_view(), name='jwt_create'), 
     path('auth/', include('djoser.urls.jwt')), # Djoser + JWT
 ]
 """

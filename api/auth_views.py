@@ -1,10 +1,12 @@
-# api, auth_views.py
+# api/auth_views.py
 from datetime import timezone
 from rest_framework_simplejwt.views import TokenObtainPairView
-from rest_framework.response import Response
-from rest_framework import status
 
 class CustomTokenObtainPairView(TokenObtainPairView):
+    """
+    Custom JWT view that updates last_login on successful authentication.
+    This works for both Simple JWT and Djoser JWT endpoints.
+    """
     def post(self, request, *args, **kwargs):
         try:
             response = super().post(request, *args, **kwargs)
@@ -21,6 +23,3 @@ class CustomTokenObtainPairView(TokenObtainPairView):
         except Exception as e:
             # If authentication fails, just return the error response
             return super().post(request, *args, **kwargs)
-        
-
-# to update last_login when using jwt tokens
