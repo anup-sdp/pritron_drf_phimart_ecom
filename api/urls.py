@@ -29,7 +29,7 @@ urlpatterns = [
 	path('categories2/', include('products.category_urls')),
     path('auth/', include('djoser.urls')), # Djoser core (registration, activation, password reset, etc.)
 	# Override the JWT creation endpoint with our custom view
-    path('auth/jwt/create/', CustomTokenObtainPairView.as_view(), name='jwt_create'), 
+    # path('auth/jwt/create/', CustomTokenObtainPairView.as_view(), name='jwt_create'), 
     path('auth/', include('djoser.urls.jwt')), # Djoser + JWT
 ]
 """

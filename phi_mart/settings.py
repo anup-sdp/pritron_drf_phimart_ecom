@@ -218,6 +218,7 @@ SIMPLE_JWT = {
 	# ^ When making authenticated requests, Authorization: JWT <token> , instead of Authorization: Bearer <token> , 'AUTH_HEADER_TYPES': ('JWT', 'Bearer')	Accepts both formats
     "ACCESS_TOKEN_LIFETIME": timedelta(minutes=60),    
     "REFRESH_TOKEN_LIFETIME": timedelta(days=7),
+	"UPDATE_LAST_LOGIN": True,
 }
 
 # http://localhost:5173/
