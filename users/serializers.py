@@ -12,7 +12,8 @@ class UserCreateSerializer(BaseUserCreateSerializer):
 class UserSerializer(BaseUserSerializer):
     class Meta(BaseUserSerializer.Meta):
         ref_name = 'CustomUser' # used to fix below error, or change this class name to CustomUserSerializer here and in settings DJOSER, 'current_user' reference
-        fields = ['id', 'email', 'first_name', 'last_name', 'address', 'phone_number']
+        fields = ['id', 'email', 'first_name', 'last_name', 'address', 'phone_number', 'is_staff']
+        read_only_fields = ['is_staff']
 
 """
 # if visit, http://127.0.0.1:8000/swagger/ , getting error:
