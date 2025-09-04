@@ -51,6 +51,7 @@ ALLOWED_HOSTS = [
     'localhost', 
     '127.0.0.1',
     'drf-phimart.vercel.app',  # Add your specific Vercel URL
+	'react-phimart-client.vercel.app',
 ]
 
 
