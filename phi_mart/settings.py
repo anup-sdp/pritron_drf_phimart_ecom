@@ -279,6 +279,7 @@ CORS_ALLOWED_ORIGINS = [
     "http://127.0.0.1:8000",  # Django local server
     "https://drf-phimart.vercel.app",  # Your Vercel backend
     # Add your React frontend URL when deployed
+	"https://react-phimart-client.vercel.app",
     # "https://your-react-app.vercel.app",  
 ]
 
@@ -286,6 +287,7 @@ CSRF_TRUSTED_ORIGINS = [
     "http://localhost:5173",
     "https://drf-phimart.vercel.app",
     # Add other production domains
+	"https://react-phimart-client.vercel.app",
 ]
 
 # CORS_ALLOW_ALL_ORIGINS = True  # Use only in development
