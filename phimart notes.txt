@@ -91,7 +91,7 @@ git remote add origin https://github.com/anup-sdp/pritron_drf_phimart_ecom.git
 git push -u origin main
 ---
 git add .
-git commit -m "v2.9"
+git commit -m "v3.0"
 git push -u origin main
 ---
 git branch  --(show current branch)
@@ -103,5 +103,6 @@ git commit -m "module 35.5 practice."
 git push -u origin module35.5
 git checkout main
 -----
-
+git merge module35.5
+git push -u origin main
 
