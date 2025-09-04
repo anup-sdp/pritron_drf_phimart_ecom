@@ -32,7 +32,9 @@ python manage.py createsuperuser
 admin@example.com-1234 (no username used in this app)
 ---
 fewadi7450@ahvin.com-pw: aB@12345
-anupbarua30@gmail.com-pw: aB@12345
+pbvkvka0zn@osxofulk.com-pw: aB@123456
+anupbarua30@gmail.com-pw: aB@123456
+
 
 create all app models and run migrations
 
@@ -89,6 +91,6 @@ git remote add origin https://github.com/anup-sdp/pritron_drf_phimart_ecom.git
 git push -u origin main
 ---
 git add .
-git commit -m "v2.6"
+git commit -m "v2.7"
 git push -u origin main
 ---

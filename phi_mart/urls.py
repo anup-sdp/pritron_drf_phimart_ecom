@@ -23,6 +23,7 @@ from django.conf import settings
 from rest_framework import permissions
 from drf_yasg.views import get_schema_view
 from drf_yasg import openapi
+from api.auth_views import CustomTokenObtainPairView
 
 from rest_framework_simplejwt.views import TokenObtainPairView, TokenRefreshView
 
@@ -44,7 +45,8 @@ urlpatterns = [
 	path("", api_root_view),
 	path('api-auth/', include('rest_framework.urls')), # For login/logout in DRF UI
 	path('api/', include('api.urls')), # , name='api-root'  # recommended format use: api/v1/ -----
-	path('api/token/', TokenObtainPairView.as_view(), name='token_obtain_pair'),  # post request to get access/refresh tokens
+	# path('api/token/', TokenObtainPairView.as_view(), name='token_obtain_pair'),  # post request to get access/refresh tokens
+	path('api/token/', CustomTokenObtainPairView.as_view(), name='token_obtain_pair'),  # post request to get access/refresh tokens
     path('api/token/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
 	path('swagger/', schema_view.with_ui('swagger',cache_timeout=0), name='schema-swagger-ui'),
     path('redoc/', schema_view.with_ui('redoc',cache_timeout=0), name='schema-redoc'),
