@@ -9,6 +9,7 @@ from rest_framework.permissions import IsAuthenticated, IsAdminUser
 from rest_framework.decorators import action
 from orders.services import OrderService
 from rest_framework.response import Response
+from django.db import IntegrityError, transaction
 
 
 class CartViewSet(CreateModelMixin, RetrieveModelMixin, DestroyModelMixin, GenericViewSet): # not ModelViewSet, not showing all carts list
@@ -22,6 +23,26 @@ class CartViewSet(CreateModelMixin, RetrieveModelMixin, DestroyModelMixin, Gener
         if getattr(self, 'swagger_fake_view', False):  # if AnonymousUser
             return Cart.objects.none()
         return Cart.objects.prefetch_related('items__product').filter(user=self.request.user)  # prefetch_related used
+    
+    def get_queryset(self):
+        if getattr(self, 'swagger_fake_view', False):
+            return Cart.objects.none()
+        return Cart.objects.prefetch_related('items__product').filter(user=self.request.user)
+
+    def create(self, request, *args, **kwargs):
+        # Use transaction + handle IntegrityError for safety against race conditions
+        try:
+            with transaction.atomic():
+                cart, created = Cart.objects.get_or_create(user=request.user)
+        except IntegrityError:
+            # rare race: creation failed because another request created it simultaneously
+            cart = Cart.objects.get(user=request.user)
+            created = False
+
+        serializer = self.get_serializer(cart)
+        if created:
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+        return Response(serializer.data, status=status.HTTP_200_OK)
 
 # getattr(object, attribute_name, default_value)
 # default_value: (optional) value to return if the attribute doesn't exist — avoids AttributeError

@@ -29,12 +29,13 @@ python manage.py makemigrations
 python manage.py migrate
 
 python manage.py createsuperuser
-admin@example.com-1234 (no username used in this app)
+admin@example.com-aB@12345 (no username used in this app)
 ---
 fewadi7450@ahvin.com-pw: aB@12345
 pbvkvka0zn@osxofulk.com-pw: aB@123456
-dyjupiky@forexzig.com-pw: aB@12345
-anupbarua30@gmail.com-pw: aB@123456
+dyjupiky@forexzig.com-pw: aB@123456
+b76o3thz77@vwhins.com-pw: aB@12345
+anupbarua30@gmail.com-pw: aB@12345
 
 
 create all app models and run migrations
@@ -92,7 +93,7 @@ git remote add origin https://github.com/anup-sdp/pritron_drf_phimart_ecom.git
 git push -u origin main
 ---
 git add .
-git commit -m "v3.2"
+git commit -m "v3.3"
 git push -u origin main
 ---
 git branch  --(show current branch)
