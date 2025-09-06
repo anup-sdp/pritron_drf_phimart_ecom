@@ -45,8 +45,8 @@ class CartViewSet(CreateModelMixin, ListModelMixin, RetrieveModelMixin, DestroyM
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         return Response(serializer.data, status=status.HTTP_200_OK)
     
-    @action(detail=False, methods=['get'])  # creates a GET /carts/me/ endpoint that returns the current user's cart.
-    def me(self, request):
+    @action(detail=False, methods=['get'])  # creates a GET /carts/my_cart/ endpoint that returns the current user's cart.
+    def my_cart(self, request):
         try:
             cart = Cart.objects.get(user=request.user)
             serializer = self.get_serializer(cart)
