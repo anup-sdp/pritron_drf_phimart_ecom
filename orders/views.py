@@ -1,6 +1,6 @@
 # orders, views.py:
 from django.shortcuts import render
-from rest_framework.mixins import CreateModelMixin, RetrieveModelMixin, DestroyModelMixin
+from rest_framework.mixins import CreateModelMixin, RetrieveModelMixin, DestroyModelMixin, ListModelMixin
 from rest_framework.viewsets import GenericViewSet, ModelViewSet
 from orders import serializers as orderSz
 from orders.serializers import CartSerializer, CartItemSerializer, AddCartItemSerializer, UpdateCartItemSerializer
@@ -13,7 +13,7 @@ from django.db import IntegrityError, transaction
 from rest_framework import status
 
 
-class CartViewSet(CreateModelMixin, RetrieveModelMixin, DestroyModelMixin, GenericViewSet): # not ModelViewSet, not showing all carts list
+class CartViewSet(CreateModelMixin, ListModelMixin, RetrieveModelMixin, DestroyModelMixin, GenericViewSet): # not ModelViewSet, not showing all carts list
     serializer_class = CartSerializer
     permission_classes = [IsAuthenticated]
 
@@ -44,6 +44,15 @@ class CartViewSet(CreateModelMixin, RetrieveModelMixin, DestroyModelMixin, Gener
         if created:
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         return Response(serializer.data, status=status.HTTP_200_OK)
+    
+    @action(detail=False, methods=['get'])  # creates a GET /carts/me/ endpoint that returns the current user's cart.
+    def me(self, request):
+        try:
+            cart = Cart.objects.get(user=request.user)
+            serializer = self.get_serializer(cart)
+            return Response(serializer.data)
+        except Cart.DoesNotExist:
+            return Response(status=404)
 
 # getattr(object, attribute_name, default_value)
 # default_value: (optional) value to return if the attribute doesn't exist — avoids AttributeError
