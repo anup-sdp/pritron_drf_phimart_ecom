@@ -75,10 +75,24 @@ python manage.py collectstatic
 pip install django-cors-headers
 add in settings, https://pypi.org/project/django-cors-headers/
 
+===================================
+module 38.1: sslcommerz
+https://sslcommerz.com/  > services > payment gateway > View Docs > 
+(https://sslcommerz.com/integration-document/)  read the full doc (long) - (see Request Parameters)
+
+1. create demo/sandbox account for testing: https://developer.sslcommerz.com/registration/
+application domain name: www.anup-project.com ... email: anupbarua30@gmail.com pw:aB@12345
+email was sent to me of my sslcomerz sandbox account details.
+email starred for latter find.
+
 38.3: open drf backend in vs code,
 activate venv, 
 pip install sslcommerz-lib  --(alternative: used in fastkart project: pip install sslcommerz-python-api)
 write in function initiate_payment in orders app. add urls in app api,
+
+
+2. Library Resources for Integration > https://github.com/sslcommerz > SSLCommerz-Python: https://github.com/sslcommerz/SSLCommerz-Python
+follow it.
 
 user.full_name added
 =======
@@ -100,7 +114,7 @@ git remote add origin https://github.com/anup-sdp/pritron_drf_phimart_ecom.git
 git push -u origin main
 ---
 git add .
-git commit -m "v3.8"
+git commit -m "v3.9"
 git push -u origin main
 ---
 git branch  --(show current branch)
