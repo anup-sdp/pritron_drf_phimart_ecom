@@ -15,3 +15,7 @@ class User(AbstractUser):
 
     def __str__(self):
         return self.email
+    
+    @property
+    def full_name(self):
+        return f"{self.first_name or ''} {self.last_name or ''}".strip()

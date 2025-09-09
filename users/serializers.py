@@ -1,7 +1,7 @@
 # users, serializers.py:
 # https://djoser.readthedocs.io/en/latest/settings.html#serializers
 from djoser.serializers import UserCreateSerializer as BaseUserCreateSerializer, UserSerializer as BaseUserSerializer
-
+from rest_framework import serializers 
 
 class UserCreateSerializer(BaseUserCreateSerializer):
     class Meta(BaseUserCreateSerializer.Meta):
@@ -10,6 +10,7 @@ class UserCreateSerializer(BaseUserCreateSerializer):
 
 #class UserSerializer(BaseUserSerializer):
 class UserSerializer(BaseUserSerializer):
+    full_name = serializers.ReadOnlyField() 
     class Meta(BaseUserSerializer.Meta):
         ref_name = 'CustomUser' # used to fix below error, or change this class name to CustomUserSerializer here and in settings DJOSER, 'current_user' reference
         fields = ['id', 'email', 'first_name', 'last_name', 'address', 'phone_number', 'is_staff']

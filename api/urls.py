@@ -1,7 +1,7 @@
 # api, urls.py:
 from django.urls import path, include
 from products.views import ProductViewSet, CategoryViewSet, ReviewViewSet, ProductImageViewSet
-from orders.views import CartViewSet, CartItemViewSet, OrderViewset
+from orders.views import CartViewSet, CartItemViewSet, OrderViewset, initiate_payment
 #from rest_framework.routers import DefaultRouter  # now using nested
 from rest_framework_nested import routers  # simplifies the creation of nested API routes and views. 
 from api.auth_views import CustomTokenObtainPairView
@@ -31,7 +31,9 @@ urlpatterns = [
 	# Override the JWT creation endpoint with our custom view
     # path('auth/jwt/create/', CustomTokenObtainPairView.as_view(), name='jwt_create'), 
     path('auth/', include('djoser.urls.jwt')), # Djoser + JWT
+	path('payment/initiate/', initiate_payment, name='initiate-payment'),
 ]
+
 """
 POST /api/auth/users/ → create user (inactive) + send activation email
 GET /api/auth/users/activation/?uid=<uid>&token=<token> → activate
