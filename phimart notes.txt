@@ -74,6 +74,13 @@ python manage.py collectstatic
 32.1:
 pip install django-cors-headers
 add in settings, https://pypi.org/project/django-cors-headers/
+
+38.3: open drf backend in vs code,
+activate venv, 
+pip install sslcommerz-lib  --(alternative: used in fastkart project: pip install sslcommerz-python-api)
+write in function initiate_payment in orders app. add urls in app api,
+
+user.full_name added
 =======
 abc
 
@@ -93,7 +100,7 @@ git remote add origin https://github.com/anup-sdp/pritron_drf_phimart_ecom.git
 git push -u origin main
 ---
 git add .
-git commit -m "v3.7 sslcommerz payment_initiate api added"
+git commit -m "v3.8"
 git push -u origin main
 ---
 git branch  --(show current branch)
