@@ -268,9 +268,9 @@ EMAIL_HOST_PASSWORD = config('EMAIL_HOST_PASSWORD') # password associated with a
 DEFAULT_FROM_EMAIL = "phimart_app"
 
 # for user account email activation
-# FRONTEND_URL = config('FRONTEND_URL', default='http://127.0.0.1:8000')  # development ----------------------
-FRONTEND_URL = config('FRONTEND_URL', default='http://localhost:5173')
-BACKEND_URL = config("BACKEND_URL", default='https://drf-phimart.vercel.app/') # https://drf-phimart.vercel.app/api/
+# FRONTEND_URL = config('FRONTEND_URL', default='http://127.0.0.1:8000')  # development 
+FRONTEND_URL = config('FRONTEND_URL', default='http://localhost:5173') # deployed to https://react-phimart-client.vercel.app (used in velcel backend deployment)
+BACKEND_URL = config("BACKEND_URL", default='https://drf-phimart.vercel.app/') # https://drf-phimart.vercel.app/api/  # used in orders.views -------------------
 # Update FRONTEND_URL for email links
 # FRONTEND_URL = config('FRONTEND_URL', default='https://your-react-frontend.vercel.app')  # Update when you deploy frontend
 
@@ -364,4 +364,16 @@ http://127.0.0.1:8000/api/auth/jwt/refresh
 simple jwt only:
 http://127.0.0.1:8000/api/token/
 http://127.0.0.1:8000/api/token/refresh/
+"""
+
+"""
+backend deployed: https://drf-phimart.vercel.app -> https://drf-phimart.vercel.app/api/
+
+environment variables used in vercel:
+FRONTEND_URL: https://react-phimart-client.vercel.app
+EMAIL_FRONTEND_PROTOCOL: https
+API_DOMAIN: react-phimart-client.vercel.app
+EMAIL_FRONTEND_DOMAIN: react-phimart-client.vercel.app
+DEBUG: False
+...
 """
