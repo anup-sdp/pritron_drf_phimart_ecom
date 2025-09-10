@@ -270,6 +270,7 @@ DEFAULT_FROM_EMAIL = "phimart_app"
 # for user account email activation
 # FRONTEND_URL = config('FRONTEND_URL', default='http://127.0.0.1:8000')  # development ----------------------
 FRONTEND_URL = config('FRONTEND_URL', default='http://localhost:5173')
+BACKEND_URL = config("BACKEND_URL", default='https://drf-phimart.vercel.app/') # https://drf-phimart.vercel.app/api/
 # Update FRONTEND_URL for email links
 # FRONTEND_URL = config('FRONTEND_URL', default='https://your-react-frontend.vercel.app')  # Update when you deploy frontend
 
