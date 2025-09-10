@@ -126,6 +126,13 @@ class OrderViewset(ModelViewSet):
         if self.request.user.is_staff:
             return Order.objects.prefetch_related('items__product').all()
         return Order.objects.prefetch_related('items__product').filter(user=self.request.user)
+    
+    def get_queryset(self):
+        if getattr(self, 'swagger_fake_view', False):  # if AnonymousUser
+            return Order.objects.none()
+        if self.request.user.is_staff:
+            return Order.objects.select_related('user').prefetch_related('items__product').all()
+        return Order.objects.select_related('user').prefetch_related('items__product').filter(user=self.request.user)
 
 
 

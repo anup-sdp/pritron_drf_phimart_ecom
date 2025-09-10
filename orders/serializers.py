@@ -4,6 +4,7 @@ from orders.models import Cart, CartItem, Order, OrderItem
 from products.models import Product
 from products.serializers import ProductSerializer
 from orders.services import OrderService
+from users.models import User
 
 
 class EmptySerializer(serializers.Serializer):
@@ -147,10 +148,19 @@ class UpdateOrderSerializer(serializers.ModelSerializer):
         return super().update(instance, validated_data)
     """	
 
+class SimpleUserSerializer(serializers.ModelSerializer):
+    full_name = serializers.ReadOnlyField()  # uses the @property from User model
+    
+    class Meta:
+        model = User
+        fields = ['id', 'email', 'full_name']
 
+        
 class OrderSerializer(serializers.ModelSerializer):
     items = OrderItemSerializer(many=True)
-
+    user = SimpleUserSerializer(read_only=True)  # nested serializer
+    # user_full_name = serializers.CharField(source='user.full_name', read_only=True) # alternative, add extra field with source
+    
     class Meta:
         model = Order
-        fields = ['id', 'user', 'status', 'total_price', 'created_at', 'items']
+        fields = ['id', 'user', 'status', 'total_price', 'created_at', 'items']		
