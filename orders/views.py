@@ -13,9 +13,15 @@ from rest_framework.response import Response
 from django.db import IntegrityError, transaction
 from rest_framework import status
 from rest_framework.decorators import api_view
-from django.http import HttpResponseRedirect
+from django.http import JsonResponse, HttpResponseRedirect
+
 from django.conf import settings as main_settings  # Aliasing for clarity
 from sslcommerz_lib import SSLCOMMERZ 
+from datetime import datetime
+import os
+import logging
+
+logger = logging.getLogger(__name__)
 
 
 
@@ -135,6 +141,7 @@ class OrderViewset(ModelViewSet):
         return Order.objects.select_related('user').prefetch_related('items__product').filter(user=self.request.user)
 
 
+import uuid
 
 @api_view(['POST'])
 def initiate_payment(request):
@@ -142,6 +149,8 @@ def initiate_payment(request):
     amount = request.data.get("amount")
     order_id= request.data.get("orderId")
     num_items = request.data.get("numItems")
+    unique_id = uuid.uuid4().hex  # random 32-char hex string
+    tran_id = f"{user.id}_{unique_id}" if user.is_authenticated else unique_id # alternative
 
     settings = { 'store_id': 'anupc68bfa8f415e23', 'store_pass': 'anupc68bfa8f415e23@ssl', 'issandbox': True } # info from my sandbox account email, use .env file if production.
     sslcz = SSLCOMMERZ(settings)
@@ -152,6 +161,7 @@ def initiate_payment(request):
     post_body['success_url'] = f"{main_settings.BACKEND_URL}/api/payment/success/"
     post_body['fail_url'] = f"{main_settings.BACKEND_URL}/api/payment/fail/"
     post_body['cancel_url'] = f"{main_settings.BACKEND_URL}/api/payment/cancel/"
+    post_body['ipn_url']     = f"{main_settings.BACKEND_URL}/api/payment/ipn/"   # <--- server-to-server POST
     post_body['emi_option'] = 0
     post_body['cus_name'] = user.full_name
     post_body['cus_email'] = user.email
@@ -174,6 +184,57 @@ def initiate_payment(request):
     return Response({'error':response["failedreason"]}, status=status.HTTP_400_BAD_REQUEST)
                      
 
+
+
+@api_view(['POST'])
+def payment_success(request):
+    # get data
+    tran_id = request.data.get("tran_id")
+    total_amount = request.data.get("amount")
+    current_time = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+    print("request.data =",request.data)  # example print below
+
+    # Use an absolute path so you know where the file will be created
+    log_filename = "payment_success_log.txt"
+    log_path = os.path.join(main_settings.BASE_DIR, log_filename)  # BASE_DIR is project root
+
+    # Ensure directory exists (usually BASE_DIR exists, but safe)
+    os.makedirs(os.path.dirname(log_path), exist_ok=True)
+
+    # Write to file with error handling
+    if main_settings.DEBUG:
+        try:
+            with open(log_path, 'a', encoding='utf-8') as f:
+                f.write("############ inside payment_success ############\n")
+                f.write(f"tran_id : {tran_id}\n")
+                f.write(f"total_amount : {total_amount}\n")
+                f.write(f"current time : {current_time}\n\n")
+        except Exception as e:
+            # log the exception to console and logger so you can see it in runserver output
+            logger.exception("Failed to write payment_success log")
+            print("Failed to write payment_success log")
+            # optionally return 500 so frontend knows it failed
+            return JsonResponse({"error": "Failed to write log"}, status=500)
+
+    # Continue with existing logic, guarded by try/except
+    try:
+        order_id = tran_id.split('_')[1]
+        order = Order.objects.get(id=order_id)
+        #user = order.user 
+        order.status = "Ready To Ship"
+        order.save()
+    except Exception as e:
+        logger.exception("Failed to update order for tran_id=%s", tran_id)
+        # return error response or handle as you need
+        return JsonResponse({"error": "order update failed"}, status=500)
+
+    # If frontend expects redirect, keep it. If it's an API call, consider returning JSON.
+    return HttpResponseRedirect(f"{main_settings.FRONTEND_URL}/dashboard/orders/")
+    # or: return JsonResponse({"ok": True})
+
+
+"""
+older version: ok:
 @api_view(['POST'])
 def payment_success(request):
     print("Inside success")
@@ -182,6 +243,7 @@ def payment_success(request):
     order.status = "Ready To Ship"
     order.save()
     return HttpResponseRedirect(f"{main_settings.FRONTEND_URL}/dashboard/orders/")
+"""
 
 
 @api_view(['POST'])
@@ -293,4 +355,9 @@ console print:
 from initiate_payment function : {'status': 'SUCCESS', 'failedreason': '', 'sessionkey': '5F6E5AEA7C0496EA63C0150C43B0207F', 'gw': {'visa': 'city_visa,ebl_visa,visacard', 'master': 'city_master,ebl_master,mastercard', 'amex': 'city_amex,amexcard', 'othercards': 'qcash,fastcash', 'internetbanking': 'city,abbank,bankasia,ibbl,mtbl,tapnpay,eblsky,instapay,pmoney,woori,modhumoti,fsibl', 'mobilebanking': 'dbblmobilebanking,bkash,nagad,abbank,ibbl,tap,upay,okaywallet,cellfine,mcash'}, 'redirectGatewayURL': 'https://sandbox.sslcommerz.com/gwprocess/v4/bankgw/indexhtml.php?mamount=100.26&ssl_id=25090911115818LFRuUEZGgZ0sE&Q=REDIRECT&SESSIONKEY=5F6E5AEA7C0496EA63C0150C43B0207F&tran_type=success&cardname=', 'directPaymentURLBank': '', 'directPaymentURLCard': '', 'directPaymentURL': '', 'redirectGatewayURLFailed': '', 'GatewayPageURL': 'https://sandbox.sslcommerz.com/EasyCheckOut/testcde5f6e5aea7c0496ea63c0150c43b0207f', 'storeBanner': 'https://sandbox.sslcommerz.com/stores/logos/demoLogo.png', 'storeLogo': 'https://sandbox.sslcommerz.com/stores/logos/demoLogo.png', 'store_name': 'Demo', 'desc': [{'name': 'AMEX', 'type': 'amex', 'logo': 'https://sandbox.sslcommerz.com/gwprocess/v4/image/gw/amex.png', 'gw': 'amexcard', 'r_flag': '1', 'redirectGatewayURL': 'https://sandbox.sslcommerz.com/gwprocess/v4/bankgw/indexhtmlOTP.php?mamount=100.26&ssl_id=25090911115818LFRuUEZGgZ0sE&Q=REDIRECT&SESSIONKEY=5F6E5AEA7C0496EA63C0150C43B0207F&tran_type=success&cardname=amexcard'}, {'name': 'VISA', 'type': 'visa', 'logo': 'https://sandbox.sslcommerz.com/gwprocess/v4/image/gw/visa.png', 'gw': 'visacard', 'r_flag': '1', 'redirectGatewayURL': 'https://sandbox.sslcommerz.com/gwprocess/v4/bankgw/indexhtmlOTP.php?mamount=100.26&ssl_id=25090911115818LFRuUEZGgZ0sE&Q=REDIRECT&SESSIONKEY=5F6E5AEA7C0496EA63C0150C43B0207F&tran_type=success&cardname=visavard'}, {'name': 'MASTER', 'type': 'master', 'logo': 'https://sandbox.sslcommerz.com/gwprocess/v4/image/gw/master.png', 'gw': 'mastercard', 'r_flag': '1', 'redirectGatewayURL': 'https://sandbox.sslcommerz.com/gwprocess/v4/bankgw/indexhtmlOTP.php?mamount=100.26&ssl_id=25090911115818LFRuUEZGgZ0sE&Q=REDIRECT&SESSIONKEY=5F6E5AEA7C0496EA63C0150C43B0207F&tran_type=success&cardname=mastercard'}, {'name': 'AMEX-City Bank', 'type': 'amex', 'logo': 'https://sandbox.sslcommerz.com/gwprocess/v4/image/gw/amex.png', 'gw': 'city_amex', 'r_flag': '1', 'redirectGatewayURL': 'https://sandbox.sslcommerz.com/gwprocess/v4/bankgw/indexhtmlOTP.php?mamount=100.26&ssl_id=25090911115818LFRuUEZGgZ0sE&Q=REDIRECT&SESSIONKEY=5F6E5AEA7C0496EA63C0150C43B0207F&tran_type=success&cardname=city_amex'}, {'name': 'QCash', 'type': 'othercards', 'logo': 'https://sandbox.sslcommerz.com/gwprocess/v4/image/gw/qcash.png', 'gw': 'qcash', 'r_flag': '1', 'redirectGatewayURL': 'https://sandbox.sslcommerz.com/gwprocess/v4/bankgw/indexhtmlOTP.php?mamount=100.26&ssl_id=25090911115818LFRuUEZGgZ0sE&Q=REDIRECT&SESSIONKEY=5F6E5AEA7C0496EA63C0150C43B0207F&tran_type=success&cardname=qcash'}, {'name': 'Fast Cash', 'type': 'othercards', 'logo': 'https://sandbox.sslcommerz.com/gwprocess/v4/image/gw/fastcash.png', 'gw': 'fastcash'}, {'name': 'bKash', 'type': 'mobilebanking', 'logo': 'https://sandbox.sslcommerz.com/gwprocess/v4/image/gw/bkash.png', 'gw': 'bkash', 'r_flag': '1', 'redirectGatewayURL': 'https://sandbox.sslcommerz.com/gwprocess/v4/bankgw/indexhtmlOTP.php?mamount=100.26&ssl_id=25090911115818LFRuUEZGgZ0sE&Q=REDIRECT&SESSIONKEY=5F6E5AEA7C0496EA63C0150C43B0207F&tran_type=success&cardname=bkash'}, {'name': 'Nagad', 'type': 'mobilebanking', 'logo': 'https://sandbox.sslcommerz.com/gwprocess/v4/image/gw/nagad.png', 'gw': 'nagad', 'r_flag': '1', 'redirectGatewayURL': 'https://sandbox.sslcommerz.com/gwprocess/v4/bankgw/indexhtmlOTP.php?mamount=100.26&ssl_id=25090911115818LFRuUEZGgZ0sE&Q=REDIRECT&SESSIONKEY=5F6E5AEA7C0496EA63C0150C43B0207F&tran_type=success&cardname=nagad'}, {'name': 'DBBL Mobile Banking', 'type': 'mobilebanking', 'logo': 'https://sandbox.sslcommerz.com/gwprocess/v4/image/gw/dbblmobilebank.png', 'gw': 'dbblmobilebanking', 'r_flag': '1', 'redirectGatewayURL': 'https://sandbox.sslcommerz.com/gwprocess/v4/bankgw/indexhtmlOTP.php?mamount=100.26&ssl_id=25090911115818LFRuUEZGgZ0sE&Q=REDIRECT&SESSIONKEY=5F6E5AEA7C0496EA63C0150C43B0207F&tran_type=success&cardname=dbblmobilebanking'}, {'name': 'AB Direct', 'type': 'mobilebanking', 'logo': 'https://sandbox.sslcommerz.com/gwprocess/v4/image/gw/abbank.png', 'gw': 'abbank', 'r_flag': '1', 'redirectGatewayURL': 'https://sandbox.sslcommerz.com/gwprocess/v4/bankgw/indexhtmlOTP.php?mamount=100.26&ssl_id=25090911115818LFRuUEZGgZ0sE&Q=REDIRECT&SESSIONKEY=5F6E5AEA7C0496EA63C0150C43B0207F&tran_type=success&cardname=abbank'}, {'name': 'AB Direct', 'type': 'internetbanking', 'logo': 'https://sandbox.sslcommerz.com/gwprocess/v4/image/gw/abbank.png', 'gw': 'abbank', 'r_flag': '1', 'redirectGatewayURL': 'https://sandbox.sslcommerz.com/gwprocess/v4/bankgw/indexhtmlOTP.php?mamount=100.26&ssl_id=25090911115818LFRuUEZGgZ0sE&Q=REDIRECT&SESSIONKEY=5F6E5AEA7C0496EA63C0150C43B0207F&tran_type=success&cardname=abbank'}, {'name': 'IBBL', 'type': 'internetbanking', 'logo': 'https://sandbox.sslcommerz.com/gwprocess/v4/image/gw/ibbl.png', 'gw': 'ibbl', 'r_flag': '1', 'redirectGatewayURL': 'https://sandbox.sslcommerz.com/gwprocess/v4/bankgw/indexhtmlOTP.php?mamount=100.26&ssl_id=25090911115818LFRuUEZGgZ0sE&Q=REDIRECT&SESSIONKEY=5F6E5AEA7C0496EA63C0150C43B0207F&tran_type=success&cardname=ibbl'}, {'name': 'Citytouch', 'type': 'internetbanking', 'logo': 'https://sandbox.sslcommerz.com/gwprocess/v4/image/gw/citytouch.png', 'gw': 'city', 'r_flag': '1', 'redirectGatewayURL': 'https://sandbox.sslcommerz.com/gwprocess/v4/bankgw/indexhtmlOTP.php?mamount=100.26&ssl_id=25090911115818LFRuUEZGgZ0sE&Q=REDIRECT&SESSIONKEY=5F6E5AEA7C0496EA63C0150C43B0207F&tran_type=success&cardname=city'}, {'name': 'MTBL', 'type': 'internetbanking', 'logo': 'https://sandbox.sslcommerz.com/gwprocess/v4/image/gw/mtbl.png', 'gw': 'mtbl', 'r_flag': '1', 'redirectGatewayURL': 'https://sandbox.sslcommerz.com/gwprocess/v4/bankgw/indexhtmlOTP.php?mamount=100.26&ssl_id=25090911115818LFRuUEZGgZ0sE&Q=REDIRECT&SESSIONKEY=5F6E5AEA7C0496EA63C0150C43B0207F&tran_type=success&cardname=mtbl'}, {'name': 'Bank Asia', 'type': 'internetbanking', 'logo': 'https://sandbox.sslcommerz.com/gwprocess/v4/image/gw/bankasia.png', 'gw': 'bankasia', 'r_flag': '1', 'redirectGatewayURL': 'https://sandbox.sslcommerz.com/gwprocess/v4/bankgw/indexhtmlOTP.php?mamount=100.26&ssl_id=25090911115818LFRuUEZGgZ0sE&Q=REDIRECT&SESSIONKEY=5F6E5AEA7C0496EA63C0150C43B0207F&tran_type=success&cardname=bankasia'}, {'name': 'VISA-Eastern Bank Limited', 'type': 'visa', 'logo': 'https://sandbox.sslcommerz.com/gwprocess/v4/image/gw/visa.png', 'gw': 'ebl_visa', 'r_flag': '1', 'redirectGatewayURL': 'https://sandbox.sslcommerz.com/gwprocess/v4/bankgw/indexhtmlOTP.php?mamount=100.26&ssl_id=25090911115818LFRuUEZGgZ0sE&Q=REDIRECT&SESSIONKEY=5F6E5AEA7C0496EA63C0150C43B0207F&tran_type=success&cardname=ebl_visa'}, {'name': 'MASTER-Eastern Bank Limited', 'type': 'master', 'logo': 'https://sandbox.sslcommerz.com/gwprocess/v4/image/gw/master.png', 'gw': 'ebl_master', 'r_flag': '1', 'redirectGatewayURL': 'https://sandbox.sslcommerz.com/gwprocess/v4/bankgw/indexhtmlOTP.php?mamount=100.26&ssl_id=25090911115818LFRuUEZGgZ0sE&Q=REDIRECT&SESSIONKEY=5F6E5AEA7C0496EA63C0150C43B0207F&tran_type=success&cardname=ebl_master'}, {'name': 'VISA-City Bank', 'type': 'visa', 'logo': 'https://sandbox.sslcommerz.com/gwprocess/v4/image/gw/visa.png', 'gw': 'city_visa', 'r_flag': '1', 'redirectGatewayURL': 'https://sandbox.sslcommerz.com/gwprocess/v4/bankgw/indexhtmlOTP.php?mamount=100.26&ssl_id=25090911115818LFRuUEZGgZ0sE&Q=REDIRECT&SESSIONKEY=5F6E5AEA7C0496EA63C0150C43B0207F&tran_type=success&cardname=city_visa'}, {'name': 'MASTER-City bank', 'type': 'master', 'logo': 'https://sandbox.sslcommerz.com/gwprocess/v4/image/gw/master.png', 'gw': 'city_master', 'r_flag': '1', 'redirectGatewayURL': 'https://sandbox.sslcommerz.com/gwprocess/v4/bankgw/indexhtmlOTP.php?mamount=100.26&ssl_id=25090911115818LFRuUEZGgZ0sE&Q=REDIRECT&SESSIONKEY=5F6E5AEA7C0496EA63C0150C43B0207F&tran_type=success&cardname=city_master'}, {'name': 'TAP', 'type': 'mobilebanking', 'logo': 'https://sandbox.sslcommerz.com/gwprocess/v4/image/gw/tap.png', 'gw': 'mobilemoney', 'r_flag': '1', 'redirectGatewayURL': 'https://sandbox.sslcommerz.com/gwprocess/v4/bankgw/indexhtmlOTP.php?mamount=100.26&ssl_id=25090911115818LFRuUEZGgZ0sE&Q=REDIRECT&SESSIONKEY=5F6E5AEA7C0496EA63C0150C43B0207F&tran_type=success&cardname=mobilemoney'}, {'name': 'upay', 'type': 'mobilebanking', 'logo': 'https://sandbox.sslcommerz.com/gwprocess/v4/image/gw/upay.png', 'gw': 'upay', 'r_flag': '1', 'redirectGatewayURL': 'https://sandbox.sslcommerz.com/gwprocess/v4/bankgw/indexhtmlOTP.php?mamount=100.26&ssl_id=25090911115818LFRuUEZGgZ0sE&Q=REDIRECT&SESSIONKEY=5F6E5AEA7C0496EA63C0150C43B0207F&tran_type=success&cardname=upay'}, {'name': 'okaywallet', 'type': 'mobilebanking', 'logo': 'https://sandbox.sslcommerz.com/gwprocess/v4/image/gw/okwallet.png', 'gw': 'okaywallet', 'r_flag': '1', 'redirectGatewayURL': 'https://sandbox.sslcommerz.com/gwprocess/v4/bankgw/indexhtmlOTP.php?mamount=100.26&ssl_id=25090911115818LFRuUEZGgZ0sE&Q=REDIRECT&SESSIONKEY=5F6E5AEA7C0496EA63C0150C43B0207F&tran_type=success&cardname=okaywallet'}, {'name': 'cellfine', 'type': 'mobilebanking', 'logo': 'https://sandbox.sslcommerz.com/gwprocess/v4/image/gw/cellfin.png', 'gw': 'cellfine', 'r_flag': '1', 'redirectGatewayURL': 'https://sandbox.sslcommerz.com/gwprocess/v4/bankgw/indexhtmlOTP.php?mamount=100.26&ssl_id=25090911115818LFRuUEZGgZ0sE&Q=REDIRECT&SESSIONKEY=5F6E5AEA7C0496EA63C0150C43B0207F&tran_type=success&cardname=cellfine'}, {'name': 'mcash', 'type': 'mobilebanking', 'logo': 'https://sandbox.sslcommerz.com/gwprocess/v4/image/gw/ibblmobile.png', 'gw': 'ibbl_m', 'r_flag': '1', 'redirectGatewayURL': 'https://sandbox.sslcommerz.com/gwprocess/v4/bankgw/indexhtmlOTP.php?mamount=100.26&ssl_id=25090911115818LFRuUEZGgZ0sE&Q=REDIRECT&SESSIONKEY=5F6E5AEA7C0496EA63C0150C43B0207F&tran_type=success&cardname=ibbl_m'}, {'name': 'tapnpay', 'type': 'internetbanking', 'logo': 'https://sandbox.sslcommerz.com/gwprocess/v4/image/gw/tapnpay.png', 'gw': 'tapnpay', 'r_flag': '1', 'redirectGatewayURL': 'https://sandbox.sslcommerz.com/gwprocess/v4/bankgw/indexhtmlOTP.php?mamount=100.26&ssl_id=25090911115818LFRuUEZGgZ0sE&Q=REDIRECT&SESSIONKEY=5F6E5AEA7C0496EA63C0150C43B0207F&tran_type=success&cardname=tapnpay'}, {'name': 'eblsky', 'type': 'internetbanking', 'logo': 'https://sandbox.sslcommerz.com/gwprocess/v4/image/gw/eblsky.png', 'gw': 'eblsky', 'r_flag': '1', 'redirectGatewayURL': 'https://sandbox.sslcommer 'https://sandbox.sslcommerz.com/gwprocess/v4/bankgw/indexhtmlOTP.php?mamount=100.26&ssl_id=25090911115818LFRuUEZGgZ0sE&Q=REDIRECT&SESSIONKEY=5F6E5AEA7C0496EA63C0150C43B0207F&tran_type=success&cardname=instapay'}, {'name': 'pmoney', 'type': 'internetbanking', 'logo': 'https://sandbox.sslcommerz.com/gwprocess/v4/image/gw/pmoney.png', 'gw': 'pmoney', 'r_flag': '1', 'redirectGatewayURL': 'https://sandbox.sslcommerz.com/gwprocess/v4/bankgw/indexhtmlOTP.php?mamount=100.26&ssl_id=25090911115818LFRuUEZGgZ0sE&Q=REDIRECT&SESSIONKEY=5F6E5AEA7C0496EA63C0150C43B0207F&tran_type=success&cardname=pmoney'}, {'name': 'woori', 'type': 'internetbanking', 'logo': 'https://sandbox.sslcommerz.com/gwprocess/v4/image/gw/woori.png', 'gw': 'woori', 'r_flag': '1', 'redirectGatewayURL': 'https://sandbox.sslcommerz.com/gwprocess/v4/bankgw/indexhtmlOTP.php?mamount=100.26&ssl_id=25090911115818LFRuUEZGgZ0sE&Q=REDIRECT&SESSIONKEY=5F6E5AEA7C0496EA63C0150C43B0207F&tran_type=success&cardname=woori'}, {'name': 'modhumoti', 'type': 'internetbanking', 'logo': 'https://sandbox.sslcommerz.com/gwprocess/v4/image/gw/modhumoti.png', 'gw': 'modhumoti', 'r_flag': '1', 'redirectGatewayURL': 'https://sandbox.sslcommerz.com/gwprocess/v4/bankgw/indexhtmlOTP.php?mamount=100.26&ssl_id=25090911115818LFRuUEZGgZ0sE&Q=REDIRECT&SESSIONKEY=5F6E5AEA7C0496EA63C0150C43B0207F&tran_type=success&cardname=modhumoti'}, {'name': 'fsibl', 'type': 'internetbanking', 'logo': 'https://sandbox.sslcommerz.com/gwprocess/v4/image/gw/FsiblCloudLogo.png', 'gw': 'fsibl', 'r_flag': '1', 'redirectGatewayURL': 'https://sandbox.sslcommerz.com/gwprocess/v4/bankgw/indexhtmlOTP.php?mamount=100.26&ssl_id=25090911115818LFRuUEZGgZ0sE&Q=REDIRECT&SESSIONKEY=5F6E5AEA7C0496EA63C0150C43B0207F&tran_type=success&cardname=fsibl'}], 'is_direct_pay_enable': '0'}
 [09/Sep/2025 11:11:57] "POST /api/payment/initiate/ HTTP/1.1" 200 18929
 [09/Sep/2025 11:11:57] "GET /__debug__/history_sidebar/?store_id=3be834d19c974e10a9abbf8922e90497 HTTP/1.1" 200 9854
+"""
+
+
+"""
+request.data = <QueryDict: {'tran_id': ['txn_2d14aae8-12ca-40f9-b902-8fd7e51dc20b'], 'val_id': ['2509131153579VA1u55wVXyzoBE'], 'amount': ['161.14'], 'card_type': ['BKASH-BKash'], 'store_amount': ['157.11'], 'card_no': [''], 'bank_tran_id': ['2509131153571fhuR9ac6bHuXc2'], 'status': ['VALID'], 'tran_date': ['2025-09-13 11:53:51'], 'error': [''], 'currency': ['BDT'], 'card_issuer': ['BKash Mobile Banking'], 'card_brand': ['MOBILEBANKING'], 'card_sub_brand': ['Classic'], 'card_issuer_country': ['Bangladesh'], 'card_issuer_country_code': ['BD'], 'store_id': ['anupc68bfa8f415e23'], 'verify_sign': ['2b7f256436a5cb733ece7106d026af77'], 'verify_key': ['amount,bank_tran_id,base_fair,card_brand,card_issuer,card_issuer_country,card_issuer_country_code,card_no,card_sub_brand,card_type,currency,currency_amount,currency_rate,currency_type,error,risk_level,risk_title,status,store_amount,store_id,tran_date,tran_id,val_id,value_a,value_b,value_c,value_d'], 'verify_sign_sha2': ['7dc251ee4c6a4ddd18d989fdd5462e4c66ef90ab379f377db93bc068d2382bcd'], 'currency_type': ['BDT'], 'currency_amount': ['161.14'], 'currency_rate': ['1.0000'], 'base_fair': ['0.00'], 'value_a': [''], 'value_b': [''], 'value_c': [''], 'value_d': [''], 'subscription_id': [''], 'risk_level': ['0'], 'risk_title': ['Safe']}>
 """
